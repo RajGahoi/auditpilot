@@ -217,3 +217,61 @@ def test_missing_required_column_creates_finding(
         finding.message == "Missing required column: Owner"
         for finding in result.findings
     )
+
+
+def test_blank_risk_ids_are_not_reported_as_duplicates(
+    valid_risk_dataframe: pd.DataFrame,
+) -> None:
+    first = valid_risk_dataframe.copy()
+    second = valid_risk_dataframe.copy()
+    third = valid_risk_dataframe.copy()
+    first.loc[0, "Risk ID"] = None
+    second.loc[0, "Risk ID"] = ""
+    third.loc[0, "Risk ID"] = "   "
+    second.loc[0, "Title"] = "Missing MFA"
+    third.loc[0, "Title"] = "Unpatched server"
+    dataframe = pd.concat([first, second, third], ignore_index=True)
+
+    result = ValidationEngine().validate(dataframe)
+    duplicate_findings = [
+        finding
+        for finding in result.findings
+        if finding.message.startswith("Duplicate Risk ID")
+    ]
+    missing_findings = [
+        finding
+        for finding in result.findings
+        if finding.message == "Risk ID is missing."
+    ]
+
+    assert duplicate_findings == []
+    assert [finding.row for finding in missing_findings] == [2, 3, 4]
+
+
+def test_populated_duplicate_risk_ids_keep_spreadsheet_rows(
+    valid_risk_dataframe: pd.DataFrame,
+) -> None:
+    first = valid_risk_dataframe.copy()
+    second = valid_risk_dataframe.copy()
+    third = valid_risk_dataframe.copy()
+    first.loc[0, "Risk ID"] = "R-100"
+    second.loc[0, "Risk ID"] = "  R-100  "
+    third.loc[0, "Risk ID"] = None
+    second.loc[0, "Title"] = "Missing MFA"
+    third.loc[0, "Title"] = "Unpatched server"
+    dataframe = pd.concat([first, second, third], ignore_index=True)
+
+    result = ValidationEngine().validate(dataframe)
+    duplicate_findings = [
+        finding
+        for finding in result.findings
+        if finding.message.startswith("Duplicate Risk ID")
+    ]
+
+    assert [finding.row for finding in duplicate_findings] == [2, 3]
+    assert all(
+        finding.message == "Duplicate Risk ID: R-100"
+        for finding in duplicate_findings
+    )
+    assert all(finding.column == "Risk ID" for finding in duplicate_findings)
+    assert not any(finding.row == 4 for finding in duplicate_findings)
