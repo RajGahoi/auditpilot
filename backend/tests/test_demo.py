@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app.demo.samples import risk_register_csv
 from app.main import app
 from app.validators.engine import ValidationEngine
+from app.validators.rules.required_columns import RequiredColumnsRule
 
 client = TestClient(app)
 
@@ -20,6 +21,16 @@ def test_demo_is_served_without_changing_health_or_upload_api() -> None:
     assert client.get("/demo-assets/styles.css").status_code == 200
     assert client.get("/").json()["status"] == "healthy"
     assert client.get("/health").json() == {"status": "healthy"}
+
+
+def test_upload_guide_lists_every_required_column_and_format() -> None:
+    page = client.get("/demo").text
+    assert '<details class="format-guide">' in page
+    for column in RequiredColumnsRule.REQUIRED_COLUMNS:
+        assert f"<li><code>{column}</code></li>" in page
+    assert "1 to 5" in page
+    assert "YYYY-MM-DD" in page
+    assert 'href="/demo/samples/corrected.csv"' in page
 
 
 def test_samples_show_actionable_defects_then_a_clean_register() -> None:

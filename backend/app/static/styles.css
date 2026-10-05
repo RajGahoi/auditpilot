@@ -275,6 +275,55 @@ input::file-selector-button {
 .primary:hover {
   background:#104e3a
 }
+.format-guide {
+  margin-top:18px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  font-size:12px
+}
+.format-guide summary {
+  cursor:pointer;
+  color:var(--green);
+  font-weight:600;
+  width:fit-content;
+  outline-offset:4px
+}
+.format-guide summary:hover {
+  text-decoration:underline;
+  text-underline-offset:3px
+}
+.format-guide p {
+  margin:12px 0 0;
+  line-height:1.65
+}
+.format-guide code {
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;
+  color:var(--ink);
+  white-space:nowrap
+}
+.column-list {
+  list-style:none;
+  margin:10px 0 0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px
+}
+.column-list code {
+  display:inline-block;
+  border:1px solid #d4dfd9;
+  background:#f9fbf9;
+  border-radius:4px;
+  padding:3px 7px
+}
+.format-guide a {
+  display:inline-block;
+  margin-top:12px;
+  color:var(--green);
+  font-size:11px;
+  text-underline-offset:3px
+}
 .sample-area {
   background:#f3f8f3;
   border-left:1px solid var(--line);
