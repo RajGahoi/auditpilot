@@ -452,6 +452,15 @@ h3 {
   margin:0;
   font-weight:650
 }
+.toolbar-controls {
+  display:flex;
+  align-items:center;
+  gap:16px
+}
+.export-note {
+  font-size:11px;
+  color:var(--muted)
+}
 .findings-toolbar label {
   font-size:10px;
   color:var(--muted);
