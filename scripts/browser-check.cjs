@@ -18,7 +18,7 @@ const BASE_URL=process.env.AUDITPILOT_BASE_URL || 'http://127.0.0.1:8000';
  assert.equal(await p.locator('#score').textContent(),'40 / 100');
  await p.screenshot({path:path.join(OUTPUT,'findings.png'),fullPage:true});
  await p.selectOption('#severity-filter','High');assert.equal(await p.locator('#findings-body tr').count(),5);
- const downloadPromise=p.waitForEvent('download');await p.getByRole('button',{name:'Export findings CSV'}).click();
+ const downloadPromise=p.waitForEvent('download');await p.getByRole('button',{name:'Export all findings CSV ↓'}).click();
  const download=await downloadPromise;await download.saveAs(path.join(OUTPUT,'findings.csv'));
  const fs=require('fs');const csv=fs.readFileSync(path.join(OUTPUT,'findings.csv'),'utf8');assert(csv.includes('Assign an accountable owner'));assert(csv.includes('Review date has passed'));
  await p.locator('#corrected-button').click();
