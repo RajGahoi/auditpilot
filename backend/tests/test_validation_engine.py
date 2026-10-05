@@ -48,6 +48,45 @@ def test_missing_owner_creates_finding(
     assert result.findings[0].message == "Risk has no assigned owner."
 
 
+def test_missing_owner_whitespace_null_and_populated_values(
+    valid_risk_dataframe: pd.DataFrame,
+) -> None:
+    row1 = valid_risk_dataframe.copy()
+    row2 = valid_risk_dataframe.copy()
+    row3 = valid_risk_dataframe.copy()
+    row4 = valid_risk_dataframe.copy()
+    row5 = valid_risk_dataframe.copy()
+
+    row1.loc[0, "Owner"] = "   "
+    row2.loc[0, "Owner"] = "\t\t"
+    row3.loc[0, "Owner"] = None
+    row4.loc[0, "Owner"] = ""
+    row5.loc[0, "Owner"] = "Alice Security"
+
+    row1.loc[0, "Risk ID"] = "R-1"
+    row2.loc[0, "Risk ID"] = "R-2"
+    row3.loc[0, "Risk ID"] = "R-3"
+    row4.loc[0, "Risk ID"] = "R-4"
+    row5.loc[0, "Risk ID"] = "R-5"
+
+    dataframe = pd.concat([row1, row2, row3, row4, row5], ignore_index=True)
+
+    result = ValidationEngine().validate(dataframe)
+    owner_findings = [
+        finding for finding in result.findings if finding.column == "Owner"
+    ]
+
+    assert len(owner_findings) == 4
+    assert [finding.row for finding in owner_findings] == [2, 3, 4, 5]
+    assert all(finding.column == "Owner" for finding in owner_findings)
+    assert all(
+        finding.message == "Risk has no assigned owner."
+        for finding in owner_findings
+    )
+    assert not any(finding.row == 6 for finding in owner_findings)
+
+
+
 def test_invalid_likelihood_creates_finding(
     valid_risk_dataframe: pd.DataFrame,
 ) -> None:
